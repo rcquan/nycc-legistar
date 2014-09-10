@@ -1,29 +1,46 @@
+#############################
+# Ryan Quan
+# NYCC Legistar Visualization
+# Homework 1 , Problem 2
+# 2014-09-15
+#
+# The following code visualizes
+# the number of NYCC meetings held
+# from 2000-2013
+#############################
 library(stringr)
 library(dplyr)
+library(XML)
 library(ggplot2)
-
-
 setwd("/Users/Quan/GitHub/nycc-legistar/")
 
-nycMeetings <- read.csv("nyccMeetings.csv",
-                        colClasses = c(rep("character", 5)),
-                        stringsAsFactors = FALSE)
+CreateTable <- function(file){
+    # parses HTML tree and retreives values
+    # from tables as data.frame
+    doc <- htmlParse(file)
+    tables <- readHTMLTable(doc, 
+                            stringsAsFactors = FALSE,
+                            na.strings = "")
+    df <- tables[[1]]
+    return(df)
+}
 
+RemoveSpaces <- function(df) {
+    # regex to remove leading and lagging spaces
+    gsub("^\\s+|\\s+$", "", df)
+}
 
-rmSpaces <- function(df) {gsub("^\\s+|\\s+$", "", df)}
-
-nycMeetings <- data.frame(sapply(nycMeetings, rmSpaces))
-
+nycMeetings <- CreateTable("nyccMeetings.html")
+# remove leading and lagging spaces
+nycMeetings <- data.frame(sapply(nycMeetings, RemoveSpaces))
+# convert blank strings to NA
 nycMeetings[nycMeetings == ""] <- NA
+names(nycMeetings) <- c("Name", "Date", "Time", "Location", "Topic")
 head(nycMeetings)
-
-
-nycMeetings_df <- tbl_df(nycMeetings)
-
-nycMeetings_df$Date <- as.POSIXct(nycMeetings$Date, format = "%m/%d/%Y")
+nycMeetings$Date <- as.POSIXct(nycMeetings$Date, format = "%m/%d/%Y")
 
 # Remove defunct committees & Committee on Finance (outliers)
-nycMeetings <- nycMeetings_df %>%
+nycMeetings_plot <- nycMeetings %>%
     filter(!str_detect(Name, ignore.case("Inactive"))) %>%
     filter(!str_detect(Name, ignore.case("Subcommittee"))) %>%
     filter(!str_detect(Name, ignore.case("Task"))) %>%
@@ -41,13 +58,13 @@ nycMeetings <- nycMeetings_df %>%
 #         group_by(Name, Month) %>%
 #         summarise(Mean.Month = mean(length(Name)))
          
-nycMeetings_year <- nycMeetings %>%
+nycMeetings_year <- nycMeetings_plot %>%
         filter(Deferred == "Calendared") %>%
         group_by(Name, Year) %>%
         summarise(Count = n()) %>%
         filter(Year %in% c(2000:2013))
 
-nycMeetings_month <- nycMeetings %>%
+nycMeetings_month <- nycMeetings_plot %>%
         filter(Deferred == "Calendared") %>%
         filter(Year %in% c(2000:2013)) %>%
         group_by(Name, Month) %>%
