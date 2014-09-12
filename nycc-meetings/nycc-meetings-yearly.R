@@ -12,7 +12,6 @@ library(stringr)
 library(dplyr)
 library(XML)
 library(ggplot2)
-library(rCharts)
 
 # change to your working directory
 setwd("/Users/Quan/GitHub/nycc-legistar/nycc-meetings")
@@ -74,6 +73,9 @@ df_plot <- df %>%
 #############################
 
 # annual meetings by committee (2000-2013)
+png(filename = "images/nycc-meetings-yearly.png",
+    width = 1000, height = 970)
+
 df_plot %>%
     # consider only calendared meetings
     filter(Status == "Calendared") %>%
@@ -84,9 +86,11 @@ df_plot %>%
     filter(Year %in% c(2000:2013)) %>%
     # facet plot by committees
     ggplot(aes(x = Year, y = Count, group = 1)) + 
-    geom_line(aes(color = Name)) + facet_wrap(~Name) +
+    geom_line(aes(color = Name)) + 
+    facet_wrap(~Name) +
     ggtitle("Annual Meetings Held by New York City Council Committees (2000-2013)") + 
     theme(legend.position = "none") + 
     theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
+dev.off()
 
