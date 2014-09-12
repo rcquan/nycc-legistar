@@ -1,15 +1,25 @@
+#############################
+# Ryan Quan
+# nycc-legistar
+# nycc-meetings
+# 2014-09-15
+#
+# The following code visualizes the nycc-meetings data and
+# uploads the graphic to plotly
+#############################
+
+
 library(devtools)
 # install_github("ropensci/plotly")
 library(plotly)
-
+library(dplyr)
+library(ggplot2)
 # set_credentials_file(username="rcquan", api_key="alu43a01xq")
-
-
 library(stringr)
 
-setwd("/Users/Quan/GitHub/nycc-legistar/")
+setwd("/Users/Quan/GitHub/nycc-legistar/nycc-meetings")
 
-nycMeetings <- read.csv("nyccMeetings.csv",
+nycMeetings <- read.csv("nycc-meetings.csv",
                         colClasses = c(rep("character", 5)),
                         stringsAsFactors = FALSE)
 
@@ -20,11 +30,7 @@ nycMeetings <- data.frame(sapply(nycMeetings, rmSpaces))
 
 nycMeetings[nycMeetings == ""] <- NA
 head(nycMeetings)
-
-library(dplyr)
-library(ggplot2)
 nycMeetings_df <- tbl_df(nycMeetings)
-
 nycMeetings_df$Date <- as.POSIXct(nycMeetings$Date, format = "%m/%d/%Y")
 
 # Remove defunct committees & Committee on Finance (outliers)
