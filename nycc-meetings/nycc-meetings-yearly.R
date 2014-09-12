@@ -56,12 +56,12 @@ df_plot <- df %>%
     filter(!str_detect(Name, ignore.case("Subcommittee"))) %>%
     filter(!str_detect(Name, ignore.case("Task"))) %>%
     filter(!str_detect(Name, ignore.case("Town"))) %>%
-    filter(!str_detect(Name, ignore.case("Committee of the Whole"))) %>%
     mutate(DateTime = paste(Date,Time),
            # clean "name" variable
            Name = str_replace(Name, "Committee on ", ""),
            Name = str_replace(Name, ",.*$", ""),
            Name = str_replace(Name, "and Solid Waste Management", ""),
+           Name = str_replace(Name, "Justice Services", "Justice"),
            # create new columns for month and year with proper format
            Month = factor(format(Date, format = "%b"), levels = month.abb),
            Year = factor(format(Date, format = "%Y")),
@@ -79,8 +79,6 @@ png(filename = "images/nycc-meetings-yearly.png",
 df_plot %>%
     # consider only calendared meetings
     filter(Status == "Calendared") %>%
-    # remove finance committee, an outlier
-    filter(!str_detect(Name, ignore.case("Finance"))) %>%
     group_by(Name, Year) %>%
     summarise(Count = n()) %>%
     filter(Year %in% c(2000:2013)) %>%
