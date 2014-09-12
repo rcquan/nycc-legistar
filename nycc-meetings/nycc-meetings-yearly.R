@@ -56,6 +56,7 @@ df_plot <- df %>%
     filter(!str_detect(Name, ignore.case("Subcommittee"))) %>%
     filter(!str_detect(Name, ignore.case("Task"))) %>%
     filter(!str_detect(Name, ignore.case("Town"))) %>%
+    filter(!str_detect(Name, ignore.case("Committee of the Whole"))) %>%
     mutate(DateTime = paste(Date,Time),
            # clean "name" variable
            Name = str_replace(Name, "Committee on ", ""),
